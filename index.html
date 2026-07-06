@@ -1,0 +1,1816 @@
+.
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สถาบันศึกษาพิเศษภูผา | Phupha Special Education Institute</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Sarabun:wght@300;400;600;700&family=Noto+Serif+Thai:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        /* ===== BASE & RESET ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --gold: #d4af37;
+            --gold-light: #f4d03f;
+            --gold-bright: #ffd700;
+            --gold-deep: #b8860b;
+            --purple: #6b4c9a;
+            --purple-dark: #4a2d7a;
+            --purple-light: #9b7bc9;
+            --bg-dark: #050510;
+            --bg-medium: #0f0f25;
+            --bg-light: #1a1a3e;
+            --text-light: #f0f0f8;
+            --text-muted: #b8b8d0;
+            --border: rgba(212, 175, 55, 0.3);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            overflow-x: hidden;
+            line-height: 1.7;
+            position: relative;
+        }
+
+        body.intro-lock {
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* ===== CINEMATIC LETTERBOX ===== */
+        .letterbox-top,
+        .letterbox-bottom {
+            position: fixed;
+            left: 0;
+            width: 100%;
+            height: 5.2vh;
+            background: #000;
+            z-index: 9998;
+            pointer-events: none;
+            transform: scaleY(1);
+            transform-origin: top;
+            transition: transform 1.4s cubic-bezier(.77,0,.18,1);
+        }
+        .letterbox-top { top: 0; transform-origin: top; }
+        .letterbox-bottom { bottom: 0; transform-origin: bottom; }
+        .letterbox-top.hide,
+        .letterbox-bottom.hide { transform: scaleY(0); }
+
+        /* ===== VIGNETTE & GRAIN ===== */
+        .cine-vignette {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 5;
+            background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.35) 85%, rgba(0,0,0,0.75) 100%);
+        }
+        .film-grain {
+            position: fixed;
+            inset: -50%;
+            width: 200%;
+            height: 200%;
+            pointer-events: none;
+            z-index: 9990;
+            opacity: 0.05;
+            mix-blend-mode: overlay;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            animation: grain-shift 0.5s steps(4) infinite;
+        }
+        @keyframes grain-shift {
+            0% { transform: translate(0,0); }
+            25% { transform: translate(-2%,-2%); }
+            50% { transform: translate(2%,1%); }
+            75% { transform: translate(-1%,2%); }
+            100% { transform: translate(0,0); }
+        }
+
+        /* ===== FOG, RAYS, EMBERS, RAIN ===== */
+        .fog-layer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 220%;
+            height: 45vh;
+            pointer-events: none;
+            z-index: 1;
+            background: radial-gradient(ellipse at 30% 100%, rgba(155,123,201,0.10) 0%, transparent 60%),
+                        radial-gradient(ellipse at 70% 100%, rgba(212,175,55,0.08) 0%, transparent 55%);
+            filter: blur(10px);
+            animation: fog-drift 40s linear infinite;
+        }
+        @keyframes fog-drift {
+            0% { transform: translateX(-10%); }
+            50% { transform: translateX(-35%); }
+            100% { transform: translateX(-10%); }
+        }
+        .light-rays {
+            position: fixed;
+            top: -50%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200%;
+            height: 200%;
+            pointer-events: none;
+            z-index: 0;
+            background: conic-gradient(from 0deg at 50% 50%, transparent 0deg, rgba(212,175,55,0.03) 10deg, transparent 20deg, rgba(212,175,55,0.02) 40deg, transparent 50deg, rgba(212,175,55,0.03) 70deg, transparent 80deg, rgba(212,175,55,0.02) 100deg, transparent 110deg, rgba(212,175,55,0.03) 130deg, transparent 140deg, rgba(212,175,55,0.02) 160deg, transparent 170deg, rgba(212,175,55,0.03) 190deg, transparent 200deg, rgba(212,175,55,0.02) 220deg, transparent 230deg, rgba(212,175,55,0.03) 250deg, transparent 260deg, rgba(212,175,55,0.02) 280deg, transparent 290deg, rgba(212,175,55,0.03) 310deg, transparent 320deg, rgba(212,175,55,0.02) 340deg, transparent 360deg);
+            animation: rays-rotate 60s linear infinite;
+        }
+        @keyframes rays-rotate {
+            from { transform: translateX(-50%) rotate(0deg); }
+            to { transform: translateX(-50%) rotate(360deg); }
+        }
+        .embers {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .ember {
+            position: absolute;
+            bottom: -20px;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #fff6d0 0%, var(--gold-bright) 40%, transparent 100%);
+            box-shadow: 0 0 12px var(--gold-bright);
+            animation: ember-rise linear infinite;
+        }
+        @keyframes ember-rise {
+            0% { transform: translate(0,0) scale(0.6); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translate(var(--drift, 40px), -110vh) scale(0.2); opacity: 0; }
+        }
+        .rain-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .raindrop {
+            position: absolute;
+            top: -100px;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, rgba(212,175,55,0.4), transparent);
+            animation: rain-fall linear infinite;
+        }
+        @keyframes rain-fall {
+            0% { transform: translateY(-100px); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+        .rain-splash {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 20px;
+            background: linear-gradient(to top, rgba(212,175,55,0.1), transparent);
+            animation: splash 2s ease-in-out infinite;
+        }
+        @keyframes splash {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+        .gold-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .gold-particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: radial-gradient(circle, var(--gold-bright) 0%, var(--gold) 50%, transparent 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--gold), 0 0 20px var(--gold-deep);
+            animation: float-gold linear infinite;
+        }
+        @keyframes float-gold {
+            0% { transform: translateY(100vh) translateX(0) scale(0); opacity: 0; }
+            10% { opacity: 1; transform: translateY(90vh) translateX(10px) scale(1); }
+            50% { transform: translateY(50vh) translateX(-20px) scale(0.8); }
+            90% { opacity: 1; }
+            100% { transform: translateY(-10vh) translateX(30px) scale(0); opacity: 0; }
+        }
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+
+        /* ===== SCROLL PROGRESS ===== */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--gold-deep), var(--gold-bright), var(--gold), var(--gold-bright), var(--gold-deep));
+            background-size: 200% 100%;
+            z-index: 9999;
+            width: 0%;
+            transition: width 0.1s;
+            box-shadow: 0 0 20px var(--gold), 0 0 40px rgba(212,175,55,0.5);
+            animation: shimmer 3s linear infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* ===== CINE INTRO ===== */
+        .cine-intro {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: opacity 1.6s ease, visibility 1.6s ease;
+        }
+        .cine-intro.fade-out {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .cine-intro-line {
+            position: absolute;
+            font-family: 'Noto Serif Thai', serif;
+            font-size: clamp(1.1em, 3vw, 1.9em);
+            color: var(--gold-light);
+            letter-spacing: 2px;
+            opacity: 0;
+            font-style: italic;
+            text-shadow: 0 0 25px rgba(212,175,55,0.6);
+            padding: 0 20px;
+        }
+        .cine-intro-line.show {
+            animation: cine-line-reveal 3.1s ease forwards;
+        }
+        @keyframes cine-line-reveal {
+            0% { opacity: 0; letter-spacing: 8px; filter: blur(6px); }
+            18% { opacity: 1; letter-spacing: 2px; filter: blur(0); }
+            75% { opacity: 1; }
+            100% { opacity: 0; filter: blur(4px); }
+        }
+        .cine-intro-emblem {
+            position: absolute;
+            font-size: 3em;
+            opacity: 0;
+            filter: drop-shadow(0 0 30px rgba(212,175,55,0.8));
+        }
+        .cine-intro-emblem.show {
+            animation: cine-emblem-reveal 2.6s ease forwards;
+        }
+        @keyframes cine-emblem-reveal {
+            0% { opacity: 0; transform: scale(0.4) rotate(-15deg); }
+            30% { opacity: 1; transform: scale(1.1) rotate(0deg); }
+            70% { opacity: 1; transform: scale(1) rotate(0deg); }
+            100% { opacity: 0; transform: scale(1.3) rotate(8deg); }
+        }
+        .cine-skip {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 10001;
+            font-family: 'Cinzel', serif;
+            font-size: 0.8em;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.03);
+            padding: 10px 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .cine-skip:hover {
+            color: var(--gold-bright);
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(212,175,55,0.3);
+        }
+
+        /* ===== NAVIGATION ===== */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(5,5,16,0.97);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            padding: 15px 0;
+            border-bottom: 2px solid var(--border);
+            box-shadow: 0 5px 30px rgba(0,0,0,0.5), 0 0 20px rgba(212,175,55,0.1);
+            transition: all 0.3s ease;
+        }
+        nav.scrolled {
+            padding: 10px 0;
+            background: rgba(5,5,16,0.99);
+        }
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 0 20px;
+        }
+        nav a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-family: 'Cinzel', serif;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            letter-spacing: 0.5px;
+        }
+        nav a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--gold-deep), var(--gold));
+            border-radius: 20px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: -1;
+            border: 1px solid var(--gold);
+            box-shadow: 0 0 15px rgba(212,175,55,0.3);
+        }
+        nav a:hover::before,
+        nav a.active::before {
+            opacity: 1;
+        }
+        nav a:hover,
+        nav a.active {
+            color: var(--bg-dark);
+            transform: translateY(-2px);
+            text-shadow: 0 0 10px rgba(212,175,55,0.5);
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 140px 20px 100px;
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at center, rgba(212,175,55,0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .hero-content {
+            max-width: 900px;
+            animation: fade-in-up 1.2s ease;
+            position: relative;
+            z-index: 2;
+        }
+        @keyframes fade-in-up {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .hero-emblem {
+            font-size: 6em;
+            margin-bottom: 20px;
+            animation: emblem-float 4s ease-in-out infinite;
+            filter: drop-shadow(0 0 40px rgba(212,175,55,0.8));
+            display: inline-block;
+        }
+        @keyframes emblem-float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        .hero h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 3.8em;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--gold-deep) 0%, var(--gold-bright) 25%, #fff 50%, var(--gold-bright) 75%, var(--gold-deep) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+            text-shadow: 0 0 40px rgba(212,175,55,0.5);
+            animation: title-glow 4s ease-in-out infinite;
+        }
+        @keyframes title-glow {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(212,175,55,0.5)); }
+            50% { filter: drop-shadow(0 0 40px rgba(212,175,55,0.9)); }
+        }
+        .hero .subtitle {
+            font-family: 'Noto Serif Thai', serif;
+            font-size: 1.5em;
+            color: var(--gold);
+            margin-bottom: 20px;
+            font-style: italic;
+            text-shadow: 0 0 20px rgba(212,175,55,0.5);
+        }
+        .hero .tagline {
+            font-size: 1.3em;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            font-style: italic;
+        }
+        .hero .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+        .stat-box {
+            background: rgba(212,175,55,0.08);
+            border: 2px solid var(--gold);
+            border-radius: 20px;
+            padding: 30px 40px;
+            min-width: 180px;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(212,175,55,0.3), transparent);
+            animation: stat-rotate 4s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .stat-box:hover::before {
+            opacity: 1;
+        }
+        .stat-box:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 20px 60px rgba(212,175,55,0.4), 0 0 40px rgba(212,175,55,0.2);
+            border-color: var(--gold-bright);
+        }
+        @keyframes stat-rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .stat-number {
+            font-family: 'Cinzel', serif;
+            font-size: 3em;
+            color: var(--gold-bright);
+            font-weight: 900;
+            text-shadow: 0 0 20px rgba(212,175,55,0.8);
+            position: relative;
+            z-index: 1;
+        }
+        .stat-label {
+            color: var(--text-light);
+            font-size: 1em;
+            margin-top: 5px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== SECTION STYLES ===== */
+        section {
+            padding: 100px 20px;
+            position: relative;
+            z-index: 2;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .section-header {
+            text-align: center;
+            margin-bottom: 70px;
+        }
+        .section-title {
+            font-family: 'Cinzel', serif;
+            font-size: 3em;
+            background: linear-gradient(135deg, var(--gold-deep) 0%, var(--gold-bright) 50%, var(--gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            text-shadow: 0 0 30px rgba(212,175,55,0.5);
+        }
+        .section-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .divider-line {
+            width: 120px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            box-shadow: 0 0 10px rgba(212,175,55,0.5);
+        }
+        .divider-icon {
+            color: var(--gold-bright);
+            font-size: 1.8em;
+            text-shadow: 0 0 20px rgba(212,175,55,0.8);
+            animation: icon-pulse 2s ease-in-out infinite;
+        }
+        @keyframes icon-pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+
+        /* ===== GLASS CARDS ===== */
+        .glass-card {
+            background: rgba(26,26,62,0.4);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold-deep), var(--gold-bright), var(--gold-deep));
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+            box-shadow: 0 0 20px var(--gold);
+        }
+        .glass-card:hover::before {
+            transform: scaleX(1);
+        }
+        .glass-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--gold);
+            box-shadow: 0 15px 40px rgba(212,175,55,0.2), 0 0 30px rgba(212,175,55,0.1);
+        }
+
+        /* ===== INFO GRID ===== */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .info-item {
+            background: rgba(107,76,154,0.1);
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 4px solid var(--gold);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .info-item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle, rgba(212,175,55,0.2), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .info-item:hover::after {
+            opacity: 1;
+        }
+        .info-item:hover {
+            background: rgba(107,76,154,0.2);
+            transform: translateX(8px);
+            box-shadow: 0 5px 20px rgba(212,175,55,0.2);
+            border-left-width: 6px;
+        }
+        .info-item h3 {
+            color: var(--gold-bright);
+            font-family: 'Cinzel', serif;
+            margin-bottom: 10px;
+            font-size: 1.15em;
+            text-shadow: 0 0 10px rgba(212,175,55,0.3);
+        }
+        .info-item p {
+            color: var(--text-muted);
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        /* ===== CHART ===== */
+        .chart-container {
+            background: rgba(26,26,62,0.5);
+            border: 2px solid var(--gold);
+            border-radius: 25px;
+            padding: 40px;
+            margin: 40px 0;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(212,175,55,0.2), inset 0 0 40px rgba(212,175,55,0.05);
+        }
+        .chart-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at center, rgba(212,175,55,0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .chart-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8em;
+            color: var(--gold-bright);
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(212,175,55,0.5);
+        }
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+            max-height: 500px;
+        }
+        .chart-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .chart-stat-item {
+            background: rgba(212,175,55,0.1);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .chart-stat-item:hover {
+            background: rgba(212,175,55,0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(212,175,55,0.2);
+        }
+        .chart-stat-value {
+            font-family: 'Cinzel', serif;
+            font-size: 2em;
+            color: var(--gold-bright);
+            font-weight: 900;
+            text-shadow: 0 0 15px rgba(212,175,55,0.6);
+        }
+        .chart-stat-label {
+            color: var(--text-muted);
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        /* ===== TEACHER CARDS ===== */
+        .teacher-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+        .teacher-card {
+            background: linear-gradient(135deg, rgba(26,26,62,0.6) 0%, rgba(15,15,37,0.8) 100%);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 35px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+        .teacher-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .teacher-card:hover::after {
+            opacity: 1;
+        }
+        .teacher-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--gold);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4), 0 0 30px rgba(212,175,55,0.2);
+        }
+        .teacher-number {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-family: 'Cinzel', serif;
+            font-size: 3.5em;
+            color: rgba(212,175,55,0.15);
+            font-weight: 900;
+        }
+        .teacher-subject {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--gold-deep), var(--gold));
+            color: var(--bg-dark);
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            border: 1px solid var(--gold-bright);
+            box-shadow: 0 0 15px rgba(212,175,55,0.3);
+        }
+        .teacher-card h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.4em;
+            color: var(--gold-bright);
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(212,175,55,0.3);
+        }
+        .teacher-role {
+            color: var(--text-light);
+            margin-bottom: 15px;
+            font-size: 0.95em;
+            line-height: 1.7;
+        }
+        .teacher-history {
+            color: var(--text-muted);
+            font-size: 0.9em;
+            font-style: italic;
+            border-top: 1px solid var(--border);
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+
+        /* ===== STUDENT ===== */
+        .student-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+        .student-card {
+            background: rgba(26,26,62,0.5);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .student-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            border-color: var(--gold);
+            box-shadow: 0 10px 30px rgba(212,175,55,0.3);
+        }
+        .student-number {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5em;
+            color: var(--gold-bright);
+            font-weight: 900;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px rgba(212,175,55,0.6);
+        }
+        .student-label {
+            color: var(--text-muted);
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+        .student-fields {
+            text-align: left;
+            font-size: 0.85em;
+        }
+        .student-field {
+            padding: 5px 0;
+            border-bottom: 1px dashed rgba(212,175,55,0.2);
+            color: var(--text-muted);
+        }
+        .student-field:last-child {
+            border-bottom: none;
+        }
+        .student-field strong {
+            color: var(--gold-light);
+        }
+
+        /* ===== STAFF ===== */
+        .staff-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        .staff-card {
+            background: linear-gradient(135deg, rgba(107,76,154,0.15) 0%, rgba(26,26,62,0.6) 100%);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 35px;
+            transition: all 0.4s ease;
+        }
+        .staff-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(107,76,154,0.3), 0 0 20px rgba(212,175,55,0.1);
+            border-color: var(--gold);
+        }
+        .staff-icon {
+            font-size: 3.5em;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 15px rgba(212,175,55,0.5));
+        }
+        .staff-card h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold-bright);
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px rgba(212,175,55,0.4);
+        }
+        .staff-section {
+            margin-bottom: 20px;
+        }
+        .staff-section h4 {
+            color: var(--gold-light);
+            font-size: 1em;
+            margin-bottom: 8px;
+            font-family: 'Noto Serif Thai', serif;
+        }
+        .staff-section p, .staff-section li {
+            color: var(--text-muted);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+        .staff-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .staff-section li {
+            padding: 4px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        .staff-section li::before {
+            content: '✦';
+            position: absolute;
+            left: 0;
+            color: var(--gold);
+        }
+
+        /* ===== BUILDING ===== */
+        .building-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        .building-card {
+            background: rgba(15,15,37,0.6);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+        .building-card:hover {
+            background: rgba(26,26,62,0.8);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3), 0 0 20px rgba(212,175,55,0.1);
+            border-color: var(--gold);
+        }
+        .building-name {
+            font-family: 'Cinzel', serif;
+            color: var(--gold-bright);
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
+            text-shadow: 0 0 10px rgba(212,175,55,0.3);
+        }
+        .building-floor {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            background: rgba(107,76,154,0.1);
+            border-radius: 8px;
+            font-size: 0.9em;
+            border-left: 3px solid var(--gold);
+        }
+        .building-floor strong {
+            color: var(--gold-light);
+        }
+
+        /* ===== RULES ===== */
+        .rules-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        .rule-item {
+            background: rgba(26,26,62,0.5);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+        .rule-item:hover {
+            background: rgba(107,76,154,0.2);
+            transform: translateX(5px);
+            border-color: var(--gold);
+            box-shadow: 0 5px 20px rgba(212,175,55,0.2);
+        }
+        .rule-number {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5em;
+            color: var(--gold-bright);
+            font-weight: 900;
+            min-width: 40px;
+            text-shadow: 0 0 10px rgba(212,175,55,0.5);
+        }
+        .rule-text {
+            color: var(--text-light);
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        /* ===== SCHEDULE ===== */
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(26,26,62,0.5);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        .schedule-table th,
+        .schedule-table td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        .schedule-table th {
+            background: rgba(107,76,154,0.3);
+            color: var(--gold-bright);
+            font-family: 'Cinzel', serif;
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(212,175,55,0.3);
+        }
+        .schedule-table tr:hover td {
+            background: rgba(212,175,55,0.05);
+        }
+        .schedule-table tr:last-child td {
+            border-bottom: none;
+        }
+        .time-cell {
+            color: var(--gold-light);
+            font-weight: 600;
+            font-family: 'Cinzel', serif;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            background: rgba(5,5,16,0.95);
+            text-align: center;
+            padding: 60px 20px;
+            border-top: 2px solid var(--gold);
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 -5px 30px rgba(212,175,55,0.2);
+        }
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-bright), transparent);
+            box-shadow: 0 0 20px var(--gold);
+        }
+        footer .footer-emblem {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 30px rgba(212,175,55,0.8));
+            animation: emblem-float 4s ease-in-out infinite;
+        }
+        footer .footer-quote {
+            font-family: 'Noto Serif Thai', serif;
+            font-size: 1.4em;
+            color: var(--gold-bright);
+            font-style: italic;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(212,175,55,0.5);
+        }
+        footer .footer-text {
+            color: var(--text-muted);
+            font-size: 0.9em;
+        }
+
+        /* ===== BACK TO TOP ===== */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--gold-deep), var(--gold));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 999;
+            box-shadow: 0 5px 25px rgba(212,175,55,0.5);
+            border: 2px solid var(--gold-bright);
+            font-size: 1.8em;
+            color: var(--bg-dark);
+            font-weight: bold;
+        }
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .back-to-top:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 10px 40px rgba(212,175,55,0.7);
+        }
+
+        /* ===== ANIMATIONS ===== */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(50px) scale(0.96);
+            filter: blur(6px);
+            transition: opacity 1.1s cubic-bezier(.2,.8,.2,1), transform 1.1s cubic-bezier(.2,.8,.2,1), filter 1.1s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0);
+        }
+        .stagger-item {
+            opacity: 0;
+            transform: translateY(30px) scale(0.94);
+            filter: blur(4px);
+            transition: opacity 0.8s cubic-bezier(.2,.8,.2,1), transform 0.8s cubic-bezier(.2,.8,.2,1), filter 0.8s ease;
+        }
+        .stagger-item.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0);
+        }
+
+        /* ===== PROFILE CARDS (Director & Patron) ===== */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 40px;
+            margin-top: 30px;
+        }
+        .profile-card {
+            background: linear-gradient(145deg, rgba(26,26,62,0.7), rgba(15,15,37,0.9));
+            border: 1px solid var(--gold);
+            border-radius: 25px;
+            padding: 35px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        }
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--gold), transparent, var(--gold), transparent);
+            border-radius: 27px;
+            z-index: -1;
+            opacity: 0.6;
+            background-size: 300% 300%;
+            animation: borderGlow 4s ease-in-out infinite;
+        }
+        @keyframes borderGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .profile-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(212,175,55,0.3), 0 0 40px rgba(212,175,55,0.15);
+        }
+        .profile-img {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--gold);
+            box-shadow: 0 0 30px rgba(212,175,55,0.4);
+            margin-bottom: 20px;
+            transition: all 0.4s ease;
+        }
+        .profile-card:hover .profile-img {
+            transform: scale(1.05);
+            box-shadow: 0 0 50px rgba(212,175,55,0.7);
+        }
+        .profile-name {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8em;
+            color: var(--gold-bright);
+            text-shadow: 0 0 20px rgba(212,175,55,0.4);
+            margin-bottom: 5px;
+        }
+        .profile-title {
+            color: var(--gold-light);
+            font-size: 1.1em;
+            font-family: 'Noto Serif Thai', serif;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 15px;
+        }
+        .profile-desc {
+            color: var(--text-muted);
+            font-size: 0.95em;
+            line-height: 1.8;
+            text-align: left;
+        }
+        .profile-desc strong {
+            color: var(--gold-light);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.2em; }
+            .section-title { font-size: 2em; }
+            .teacher-grid { grid-template-columns: 1fr; }
+            .student-grid { grid-template-columns: repeat(2, 1fr); }
+            .stats { gap: 20px; }
+            .stat-box { min-width: 140px; padding: 20px; }
+            nav ul { gap: 8px; }
+            nav a { font-size: 10px; padding: 6px 10px; }
+            .chart-wrapper { height: 300px; }
+            .profile-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 480px) {
+            .student-grid { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 1.8em; }
+            .chart-wrapper { height: 250px; }
+        }
+    </style>
+</head>
+<body class="intro-lock">
+
+    <!-- ===== CINEMATIC INTRO ===== -->
+    <div class="cine-intro" id="cineIntro">
+        <div class="cine-intro-emblem" id="cineEmblem">🏛️</div>
+        <div class="cine-intro-line" id="cineLine1">ลึกเข้าไปในขุนเขาที่แผนที่ไม่กล้าบันทึก...</div>
+        <div class="cine-intro-line" id="cineLine2">ที่ซึ่งมนุษย์และปีศาจ ถูกสอนให้อยู่ร่วมกัน</div>
+        <div class="cine-intro-line" id="cineLine3">ภายใต้แสงทองที่ไม่เคยดับ</div>
+        <div class="cine-intro-line" id="cineLine4">สถาบันศึกษาพิเศษภูผา</div>
+    </div>
+    <div class="cine-skip" id="cineSkip">ข้าม ▸</div>
+
+    <!-- ===== LETTERBOX ===== -->
+    <div class="letterbox-top" id="letterboxTop"></div>
+    <div class="letterbox-bottom" id="letterboxBottom"></div>
+
+    <!-- ===== BACKGROUND EFFECTS ===== -->
+    <div class="cine-vignette"></div>
+    <div class="film-grain"></div>
+    <div class="fog-layer"></div>
+    <div class="light-rays"></div>
+    <div class="stars" id="stars"></div>
+    <div class="gold-particles" id="goldParticles"></div>
+    <div class="embers" id="embers"></div>
+    <div class="rain-container" id="rainContainer">
+        <div class="rain-splash"></div>
+    </div>
+    <div class="scroll-progress" id="scrollProgress"></div>
+    <div class="back-to-top" id="backToTop">↑</div>
+
+    <!-- ===== NAVIGATION ===== -->
+    <nav id="navbar">
+        <ul>
+            <li><a href="#home" class="nav-link active">หน้าหลัก</a></li>
+            <li><a href="#about" class="nav-link">ข้อมูลสถาบัน</a></li>
+            <li><a href="#population" class="nav-link">กราฟประชากร</a></li>
+            <li><a href="#buildings" class="nav-link">แผนผังอาคาร</a></li>
+            <li><a href="#teachers" class="nav-link">คณะครู</a></li>
+            <li><a href="#students" class="nav-link">นักเรียน</a></li>
+            <li><a href="#staff" class="nav-link">บุคลากร</a></li>
+            <li><a href="#rules" class="nav-link">กฎระเบียบ</a></li>
+            <li><a href="#schedule" class="nav-link">ตารางเวลา</a></li>
+        </ul>
+    </nav>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <div class="hero-emblem">🏛️</div>
+            <h1>สถาบันศึกษาพิเศษภูผา</h1>
+            <div class="subtitle">Phupha Special Education Institute</div>
+            <p class="tagline">"ความแตกต่างคือพลัง ความเข้าใจคือกุญแจ"</p>
+            <div class="stats">
+                <div class="stat-box"><div class="stat-number">10</div><div class="stat-label">นักเรียน</div></div>
+                <div class="stat-box"><div class="stat-number">5</div><div class="stat-label">คณะครู</div></div>
+                <div class="stat-box"><div class="stat-number">3</div><div class="stat-label">บุคลากรสนับสนุน</div></div>
+                <div class="stat-box"><div class="stat-number">18</div><div class="stat-label">ประชากรทั้งหมด</div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== ABOUT ===== -->
+    <section id="about">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2 class="section-title">ข้อมูลสถาบัน</h2>
+                <div class="section-divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-icon">🏛️</div>
+                    <div class="divider-line"></div>
+                </div>
+            </div>
+
+            <div class="glass-card fade-in">
+                <div class="info-grid">
+                    <div class="info-item stagger-item"><h3>📍 ที่ตั้ง</h3><p>พื้นที่ป่าลึกติดเขตอุทยานแห่งชาติ จังหวัดเชียงใหม่ — พื้นที่ลับที่ซ่อนอยู่จากโลกภายนอก</p></div>
+                    <div class="info-item stagger-item"><h3>🎯 กลุ่มเป้าหมาย</h3><p>มนุษย์และปีศาจ อาศัยร่วมกันภายใต้กฎระเบียบที่เข้มงวดแต่เป็นธรรม</p></div>
+                    <div class="info-item stagger-item"><h3>💰 แหล่งเงินทุน</h3><p>โรงเรียนเอกชนพิเศษภายใต้การสนับสนุนเงินทุนลับจากผู้สนับสนุนเบื้องหลัง (Shadow Patron)</p></div>
+                    <div class="info-item stagger-item"><h3>🎓 ปรัชญาการศึกษา</h3><p>สร้างสมดุลระหว่างวิชาการ พลังพิเศษ และจิตใจ เพื่อการอยู่ร่วมกันอย่างสันติ</p></div>
+                    <div class="info-item stagger-item"><h3>🔒 การรักษาความปลอดภัย</h3><p>รั้วเวทมนตร์ป้องกันผู้บุกรุก ระบบตรวจสอบตัวตนอัตโนมัติ ยามเฝ้า 24 ชั่วโมง</p></div>
+                    <div class="info-item stagger-item"><h3>🌙 บรรยากาศ</h3><p>ลึกลับ เข้มงวด แต่มีความเป็นครอบครัวเล็ก ๆ ที่ต้องพึ่งพาอาศัยกัน</p></div>
+                </div>
+            </div>
+
+            <!-- ===== DIRECTOR & PATRON ===== -->
+            <div class="section-header fade-in" style="margin-top: 60px;">
+                <h2 class="section-title">ผู้บริหารและผู้สนับสนุน</h2>
+                <div class="section-divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-icon">👤</div>
+                    <div class="divider-line"></div>
+                </div>
+            </div>
+
+            <div class="profile-grid">
+                <!-- Director -->
+                <div class="profile-card fade-in stagger-item">
+                    <img src="https://i.postimg.cc/6QNHnTGF/a46ee8da3e40b15da57288fa1ee6cd8b.jpg" alt="ผู้อำนวยการ" class="profile-img">
+                    <div class="profile-name">ผู้อำนวยการ</div>
+                    <div class="profile-title">ผู้ก่อตั้งและผู้ดูแลสถาบัน</div>
+                    <div class="profile-desc">
+                        <p><strong>นามแฝง:</strong> "ท่านผู้อำนวยการ"</p>
+                        <p><strong>บทบาท:</strong> ผู้ก่อตั้งสถาบัน ผู้ออกแบบระบบการศึกษาและกฎระเบียบทั้งหมด เป็นบุคคลลึกลับที่ไม่มีใครรู้ประวัติที่แท้จริง</p>
+                        <p><strong>เบื้องหลัง:</strong> ว่ากันว่าท่านเคยเป็นผู้พิทักษ์เขตแดนระหว่างโลกมนุษย์และโลกปีศาจมาก่อน มีความสัมพันธ์ลึกซึ้งกับทั้งสองฝ่าย ท่านเป็นผู้เดียวที่สามารถพูดคุยกับ "ปิตซึม กาเซีย" ได้อย่างเท่าเทียม</p>
+                        <p><strong>บุคลิก:</strong> เงียบขรึม หนักแน่น พูดน้อย แต่คำพูดของท่านมีน้ำหนักและมักจะคลี่คลายสถานการณ์ที่ตึงเครียดได้เสมอ</p>
+                    </div>
+                </div>
+
+                <!-- Patron -->
+                <div class="profile-card fade-in stagger-item">
+                    <img src="https://i.postimg.cc/zf1dK3gY/ngans-lpath-mi-m-ch-x-(31).jpg" alt="ปิตซึม กาเซีย" class="profile-img">
+                    <div class="profile-name">ปิตซึม กาเซีย</div>
+                    <div class="profile-title">ผู้สนับสนุนเงินทุน (Shadow Patron)</div>
+                    <div class="profile-desc">
+                        <p><strong>นามแฝง:</strong> "นายทุนเงา"</p>
+                        <p><strong>บทบาท:</strong> ผู้ให้ทุนสนับสนุนสถาบันอย่างลับๆ มีอำนาจในการตัดสินใจด้านงบประมาณและการแลกเปลี่ยนผลประโยชน์กับโลกภายนอก</p>
+                        <p><strong>เบื้องหลัง:</strong> เป็นนักธุรกิจที่มีเครือข่ายทั้งในโลกมนุษย์และโลกปีศาจ มีเส้นสายที่กว้างขวางและมักจะช่วยเหลือสถาบันในยามคับขัน แต่เงื่อนไขของเขามักจะมาพร้อมกับภารกิจลับที่ต้องแลกเปลี่ยน</p>
+                        <p><strong>บุคลิก:</strong> เฉลียวฉลาด คาดเดาไม่ได้ มีเสน่ห์แบบอันตราย มักจะปรากฏตัวเมื่อมีเรื่องสำคัญเท่านั้น</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== POPULATION CHART ===== -->
+    <section id="population" style="background: rgba(15,15,37,0.5);">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2 class="section-title">กราฟประชากรสถาบัน</h2>
+                <p style="color: var(--text-muted); margin-top: 15px; font-style: italic;">ข้อมูลประชากรทั้งหมด 18 คน ในสถาบันศึกษาพิเศษภูผา</p>
+                <div class="section-divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-icon">📊</div>
+                    <div class="divider-line"></div>
+                </div>
+            </div>
+
+            <div class="chart-container fade-in">
+                <h3 class="chart-title">สัดส่วนประชากรในสถาบัน</h3>
+                <div class="chart-wrapper"><canvas id="populationChart"></canvas></div>
+                <div class="chart-stats">
+                    <div class="chart-stat-item stagger-item"><div class="chart-stat-value">55.6%</div><div class="chart-stat-label">นักเรียน (10 คน)</div></div>
+                    <div class="chart-stat-item stagger-item"><div class="chart-stat-value">27.8%</div><div class="chart-stat-label">คณะครู (5 คน)</div></div>
+                    <div class="chart-stat-item stagger-item"><div class="chart-stat-value">16.7%</div><div class="chart-stat-label">บุคลากรสนับสนุน (3 คน)</div></div>
+                    <div class="chart-stat-item stagger-item"><div class="chart-stat-value">18</div><div class="chart-stat-label">รวมทั้งหมด</div></div>
+                </div>
+            </div>
+
+            <div class="chart-container fade-in" style="margin-top: 40px;">
+                <h3 class="chart-title">การกระจายตัวตามบทบาท</h3>
+                <div class="chart-wrapper"><canvas id="roleChart"></canvas></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== BUILDINGS ===== -->
+    <section id="buildings">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2 class="section-title">แผนผังอาคาร</h2>
+                <div class="section-divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-icon">🏛️</div>
+                    <div class="divider-line"></div>
+                </div>
+            </div>
+            <div class="building-grid">
+                <div class="building-card fade-in stagger-item"><div class="building-name">📚 อาคาร 1: อาคารเรียนหลัก</div><div class="building-floor"><strong>ชั้น 1:</strong> ห้องเรียนรวม 3 ห้อง, ห้องพักครู</div><div class="building-floor"><strong>ชั้น 2:</strong> ห้องเรียนเฉพาะวิชา (บังคับ, ปรัชญา)</div><div class="building-floor"><strong>ชั้น 3:</strong> ห้องสมุด, ห้องคอมพิวเตอร์</div></div>
+                <div class="building-card fade-in stagger-item"><div class="building-name">⚗️ อาคาร 2: อาคารปฏิบัติ</div><div class="building-floor"><strong>ชั้น 1:</strong> ห้องฝึกเวทมนตร์ (ป้องกันเสียงและพลังงาน)</div><div class="building-floor"><strong>ชั้น 2:</strong> ห้องฝึกต่อสู้ (เบาะและอุปกรณ์ป้องกัน)</div><div class="building-floor"><strong>ชั้น 3:</strong> ห้องทดลองปรุงยา (ระบบระบายอากาศพิเศษ)</div></div>
+                <div class="building-card fade-in stagger-item"><div class="building-name">🧘 อาคาร 3: อาคารบำบัด</div><div class="building-floor"><strong>ชั้น 1:</strong> ห้องบำบัดจิต (บรรยากาศสงบ)</div><div class="building-floor"><strong>ชั้น 2:</strong> ห้องทำสมาธิ, ห้องดนตรีบำบัด</div><div class="building-floor"><strong>ชั้น 3:</strong> ห้องปรึกษาส่วนตัว</div></div>
+                <div class="building-card fade-in stagger-item"><div class="building-name">🏠 อาคาร 4: หอพัก</div><div class="building-floor"><strong>ฝั่งซ้าย:</strong> 5 ห้อง (นักเรียน 2 คน/ห้อง)</div><div class="building-floor"><strong>ฝั่งขวา:</strong> 5 ห้อง (นักเรียน 2 คน/ห้อง)</div><div class="building-floor"><strong>ส่วนกลาง:</strong> ห้องนั่งเล่น, ครัวเล็ก, ห้องซักล้าง</div></div>
+                <div class="building-card fade-in stagger-item"><div class="building-name">🍽️ อาคาร 5: โรงอาหาร</div><div class="building-floor"><strong>ชั้น 1:</strong> โรงอาหาร, ร้านข้าวแกง, ครัวกลาง</div><div class="building-floor"><strong>ชั้น 2:</strong> สนามกีฬาในร่ม</div><div class="building-floor"><strong>ชั้น 3:</strong> ห้องประชุม, ห้องกิจกรรม</div></div>
+                <div class="building-card fade-in stagger-item"><div class="building-name">🌳 พื้นที่กลางแจ้ง</div><div class="building-floor"><strong>สนามกีฬา:</strong> ฟุตบอล, บาสเกตบอล</div><div class="building-floor"><strong>สวนสมุนไพร:</strong> สำหรับวิชาปรุงยา</div><div class="building-floor"><strong>ลานฝึก:</strong> ฝึกต่อสู้กลางแจ้ง</div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== TEACHERS ===== -->
+    <section id="teachers" style="background: rgba(15,15,37,0.5);">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2 class="section-title">คณะผู้สอน</h2>
+                <p style="color: var(--text-muted); margin-top: 15px; font-style: italic;">5 วิชาหลัก • ครู 1 คน ต่อ 1 วิชา • ไม่ซ้ำกัน</p>
+                <div class="section-divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-icon">👨‍🏫</div>
+                    <div class="divider-line"></div>
+                </div>
+            </div>
+            <div class="teacher-grid">
+                <div class="teacher-card fade-in stagger-item"><div class="teacher-number">01</div><div class="teacher-subject">วิชาบังคับ</div><h3>พื้นฐานและการดำรงอยู่ร่วมกัน</h3><p class="teacher-role">สอนความรู้พื้นฐานที่จำเป็นต่อการดำรงอยู่ร่วมกันของมนุษย์และปีศาจ กฎหมายพิเศษ การเอาตัวรอดในสถานการณ์ฉุกเฉิน และวิชาการทั่วไปที่รัฐกำหนด</p><p class="teacher-history"><strong>ประวัติ:</strong> เคยทำงานในหน่วยงานราชการระดับสูงมาก่อน มีความรู้รอบด้านและเข้าใจระบบกฎหมายเป็นอย่างดี เคยผ่านเหตุการณ์ความขัดแย้งระหว่างเผ่าพันธุ์มาก่อน จึงเน้นการสอนที่ประนีประนอมและกฎระเบียบ</p></div>
+                <div class="teacher-card fade-in stagger-item"><div class="teacher-number">02</div><div class="teacher-subject">วิชาปรุงยา</div><h3>เวชศาสตร์และอัลเคมี</h3><p class="teacher-role">สอนการรู้จักสมุนไพร เวชศาสตร์โบราณ การสกัดสาร การปรุงยาบำบัดและยาพิษพื้นฐาน การจัดการกับผลข้างเคียงจากพลังพิเศษ</p><p class="teacher-history"><strong>ประวัติ:</strong> เคยเป็นเภสัชกรหรือแพทย์ในชนบทห่างไกลที่รักษาทั้งคนและสิ่งมีชีวิตลึกลับ มีประสบการณ์ในการหาสมุนไพรหายากในป่าลึกและเคยทดลองปรุงยามาอย่างโชกชน</p></div>
+                <div class="teacher-card fade-in stagger-item"><div class="teacher-number">03</div><div class="teacher-subject">วิชาต่อสู้</div><h3>ศิลปะการป้องกันตัว</h3><p class="teacher-role">ฝึกฝนร่างกาย การใช้อาวุธพื้นฐาน การป้องกันตัว การต่อสู้มือเปล่า และการควบคุมพลังขณะปะทะ เน้นการเอาตัวรอดมากกว่าการฆ่า</p><p class="teacher-history"><strong>ประวัติ:</strong> ผ่านสนามรบหรือสถานการณ์จริงที่โหดร้ายมาก่อน ร่างกายเต็มไปด้วยรอยแผลเป็น มีเทคนิคการต่อสู้ที่ผสมผสานระหว่างสไตล์มนุษย์และปีศาจ เน้นความรวดเร็วและประสิทธิภาพ</p></div>
+                <div class="teacher-card fade-in stagger-item"><div class="teacher-number">04</div><div class="teacher-subject">วิชาปรัชญา</div><h3>หลักวิชาการและปรัชญา</h3><p class="teacher-role">สอนการใช้เหตุผล ตรรกะ จริยธรรม การตั้งคำถามต่อการดำรงอยู่ ความขัดแย้งทางศีลธรรมระหว่างมนุษย์กับปีศาจ และการพัฒนาทางปัญญา</p><p class="teacher-history"><strong>ประวัติ:</strong> เป็นนักวิชาการหรือเคยอยู่ในวงการศึกษามาก่อน ชอบอ่านหนังสือและตั้งคำถามกับโลก มีความใจเย็นและมองโลกตามความเป็นจริง มักใช้การโต้วาทีและการคิดวิเคราะห์ในการสอน</p></div>
+                <div class="teacher-card fade-in stagger-item"><div class="teacher-number">05</div><div class="teacher-subject">วิชาบำบัดจิต</div><h3>บำบัดจิตสำหรับปีศาจ</h3><p class="teacher-role">ดูแลสภาพจิตใจของนักเรียนปีศาจโดยเฉพาะ สอนการควบคุมสัญชาตญาณดิบ การจัดการกับความโกรธแค้น การยอมรับในตัวตน และการอยู่ร่วมกับมนุษย์โดยไม่สูญเสียความเป็นตัวเอง</p><p class="teacher-history"><strong>ประวัติ:</strong> เคยผ่านประสบการณ์ด้านมืดของจิตใจหรือเคยดูแลปีศาจที่สูญเสียการควบคุมมาก่อน มีความเข้าใจในธรรมชาติของปีศาจอย่างลึกซึ้ง มีจิตใจที่มั่นคงและสามารถรับมือกับอารมณ์รุนแรงของผู้อื่นได้</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== STUDENTS ===== -->
+    <section id="students">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2 class="section-title">นักเรียน</h2>
+                <p style="color: var(--text-muted); margin-top: 15px; font-style: italic;">รับสอบเข้า • จำนวน 10 คนถ้วน • ผู้เล่นออกแบบตัวละครเอง</p>
+                <div class="section-divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-icon">🎓</div>
+                    <div class="divider-line"></div>
+                </div>
+            </div>
+            <div class="glass-card fade-in" style="margin-bottom: 40px;">
+                <h3 style="color: var(--gold-bright); font-family: 'Cinzel', serif; margin-bottom: 20px; font-size: 1.4em;">📋 เงื่อนไขการรับเข้า</h3>
+                <div class="info-grid">
+                    <div class="info-item"><h3>การคัดเลือก</h3><p>สอบข้อเขียน + ทดสอบสมรรถภาพร่างกาย/พลัง + สัมภาษณ์</p></div>
+                    <div class="info-item"><h3>ช่วงอายุ</h3><p>15 - 18 ปี (มัธยมศึกษาตอนปลาย)</p></div>
+                    <div class="info-item"><h3>โครงสร้างห้อง</h3><p>ห้อง 1: 5 คน (เน้นวิชาการ) | ห้อง 2: 5 คน (เน้นปฏิบัติ)</p></div>
+                    <div class="info-item"><h3>ระบบการเรียน</h3><p>เรียนรวมบางวิชา + แยกเรียนตามความถนัด + กิจกรรมกลุ่มข้ามห้อง</p></div>
+                </div>
+            </div>
+            <div class="student-grid">
+                <!-- 10 Student Cards -->
+                <div class="student-card fade-in stagger-item"><div class="student-number">01</div><div class="student-label">นักเรียนคนที่ 1</div><div class="student-fields"><div class="student-field"><strong>ชื่อ:</strong> [ผู้เล่นกำหนด]</div><div class="student-field"><strong>อายุ:</strong> 15-18 ปี</div><div class="student-field"><strong>เผ่าพันธุ์:</strong> ไม่ระบุ</div><div class="student-field"><strong>พลัง:</strong> ไม่ระบุ</div><div class="student-field"><strong>ภูมิหลัง:</strong> ไม่ระบุ</div></div></div>
+                <div class="student-card fade-in stagger-item"><div class="student-number">02</div><div class="student-label">นักเรียนคนที่ 2</div><div class="student-fields"><div class="student-field"><strong>ชื่อ:</strong> [ผู้เล่นกำหนด]</div><div class="student-field"><strong>อายุ:</strong> 15-18 ปี</div><div class="student-field"><strong>เผ่าพันธุ์:</strong> ไม่ระบุ</div><div class="student-field"><strong>พลัง:</strong> ไม่ระบุ</div><div class="student-field"><strong>ภูมิหลัง:</strong> ไม่ระบุ</div></div></div>
+                <div class="student-card fade-in stagger-item"><div class="student-number">03</div><div class="student-label">นักเรียนคนที่ 3</div><div class="student-fields"><div class="student-field"><strong>ชื่อ:</strong> [ผู้เล่นกำหนด]</div><div class="student-field"><strong>อายุ:</strong> 15-18 ปี</div><div class="student-field"><strong>เผ่าพันธุ์:</strong> ไม่ระบุ</div><div class="student-field"><strong>พลัง:</strong> ไม่ระบุ</div><div class="student-field"><strong>ภูมิหลัง:</strong> ไม่ระบุ</div></div></div>
+                <div class="student-card fade-in stagger-item"><div class="student-number">04</div><div class="student-label">นักเรียนคนที่ 4</div><div class="student-fields"><div class="student-field"><strong>ชื่อ:</strong> [ผู้เล่นกำหนด]</div><div class="student-field"><strong>อายุ:</strong> 15-18 ปี</div><div class="student-field"><strong>เผ่าพันธุ์:</strong> ไม่ระบุ</div><div class="student-field"><strong>พลัง:</strong> ไม่ระบุ</div><div class="student-field"><strong>ภูมิหลัง:</strong> ไม่ระบุ</div></div></div>
+                <div class="student-card fade-in stagger-item"><div class="student-number">05</div><div class="student-label">นักเรียนคนที่ 5</div><div class="student-fields"><div class="student-field"><strong>ชื่อ:</strong> [ผู้เล่นกำหนด]</div><div class="student-field"><strong>อายุ:</strong> 15-18 ปี</div><div class="student-field"><strong>เผ่าพันธุ์:</strong> ไม่ระบุ</div><div class="student-field"><strong>พลัง:</strong> ไม่ระบุ</div><div class="student-field"><strong>ภูมิหลัง:</strong> ไม่ระบุ</div></div></div>
+                <div class="student-card fade-in stagger-item"><div class="student-number">06</div><div class="student-label">นักเรียนคนที่ 6</div><div class="student-fields"><div class="student-field"><strong>ชื่อ:</strong> [ผู้เล่นกำหนด]</div><div class="student-field"><strong>อายุ:</strong> 15-18 ปี</div><div class="student-field"><strong>เผ่าพันธุ์:</strong> ไม่ระบุ</div><div class="student-field"><strong>พลัง:</strong> ไม่ระบุ</div><div class="student-field"><strong>ภูมิหลัง:</strong> ไม่ระบุ</div></div></div>
+                <div class="student-card fade-in stagger-item"><div class="student-number">07</div><div class="student-label">นักเรียนคนที่ 7</div><div class="student-fields"><div class="student-field"><strong>ชื่อ:</strong> [ผู้เล่นกำหนด]</div><div class="student-field"><strong>อายุ:</strong> 15-18 ปี</div><div class="student-field"><strong>เผ่าพันธุ์:</strong> ไม่ระบุ</div><div class="student-field"><strong>พลัง:</strong> ไม่ระบุ</div><div class="student-field"><strong>ภูมิหลัง:</strong> ไม่ระบุ</div></div></div>
+                <div class="student-card fade-in stagger-item"><div class="student-number">08</div><div class="student-label">นักเรียนคนที่ 8</div><div class="student-fields"><div class="student-field"><strong>ชื่อ:</strong> [ผู้เล่นกำหนด]</div><div class="student-field"><strong>อายุ:</strong> 15-18 ปี</div><div class="student-field"><strong>เผ่าพันธุ์:</strong> ไม่ระบุ</div><div class="student-field"><strong>พลัง:</strong> ไม่ระบุ</div><div class="student-field"><strong>ภูมิหลัง:</strong> ไม่ระบุ</div></div></div>
+                <div class="student-card fade-in stagger-item"><div class="student-number">09</div><div class="student-label">นักเรียนคนที่ 9</div><div class="student-fields"><div class="student-field"><strong>ชื่อ:</strong> [ผู้เล่นกำหนด]</div><div class="student-field"><strong>อายุ:</strong> 15-18 ปี</div><div class="student-field"><strong>เผ่าพันธุ์:</strong> ไม่ระบุ</div><div class="student-field"><strong>พลัง:</strong> ไม่ระบุ</div><div class="student-field"><strong>ภูมิหลัง:</strong> ไม่ระบุ</div></div></div>
+                <div class="student-card fade-in stagger-item"><div class="student-number">10</div><div class="student-label">นักเรียนคนที่ 10</div><div class="student-fields"><div class="student-field"><strong>ชื่อ:</strong> [ผู้เล่นกำหนด]</div><div class="student-field"><strong>อายุ:</strong> 15-18 ปี</div><div class="student-field"><strong>เผ่าพันธุ์:</strong> ไม่ระบุ</div><div class="student-field"><strong>พลัง:</strong> ไม่ระบุ</div><div class="student-field"><strong>ภูมิหลัง:</strong> ไม่ระบุ</div></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== STAFF ===== -->
+    <section id="staff" style="background: rgba(15,15,37,0.5);">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2 class="section-title">บุคลากรสนับสนุน</h2>
+                <p style="color: var(--text-muted); margin-top: 15px; font-style: italic;">3 ตำแหน่ง • ผู้เล่นออกแบบตัวละครเอง</p>
+                <div class="section-divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-icon">👷</div>
+                    <div class="divider-line"></div>
+                </div>
+            </div>
+            <div class="staff-grid">
+                <div class="staff-card fade-in stagger-item"><div class="staff-icon">🔧</div><h3>ภารโรง</h3><div class="staff-section"><h4>หน้าที่</h4><ul><li>ดูแลความสะอาดพื้นที่ส่วนกลาง</li><li>ซ่อมแซมอุปกรณ์ที่เสียหายจากการฝึกต่อสู้</li><li>ควบคุมระบบไฟฟ้าและน้ำประปา</li><li>ตัดหญ้าและดูแลพื้นที่สีเขียว</li></ul></div><div class="staff-section"><h4>เวลาทำงาน</h4><p>06:00 - 18:00 น.</p></div><div class="staff-section"><h4>ประวัติคร่าวๆ</h4><p>ทำงานใช้แรงงานมาทั้งชีวิต มีร่างกายที่แข็งแรงและทนทาน รู้จักโครงสร้างของอาคารทุกตารางนิ้ว เป็นคนพูดน้อยแต่สังเกตทุกอย่างในโรงเรียนได้ดี มักจะอยู่เบื้องหลังและไม่เคยยุ่งเกี่ยวกับเรื่องวุ่นวายของนักเรียน</p></div></div>
+                <div class="staff-card fade-in stagger-item"><div class="staff-icon">🧹</div><h3>แม่บ้าน</h3><div class="staff-section"><h4>หน้าที่</h4><ul><li>ดูแลความสะอาดหอพักนักเรียนและห้องพักครู</li><li>ซักล้างเครื่องนอน</li><li>จัดเตรียมอุปกรณ์เครื่องใช้ที่จำเป็น</li><li>ดูแลระบบสุขอนามัยในพื้นที่พักอาศัย</li></ul></div><div class="staff-section"><h4>เวลาทำงาน</h4><p>07:00 - 17:00 น.</p></div><div class="staff-section"><h4>ประวัติคร่าวๆ</h4><p>เคยทำงานในครอบครัวใหญ่หรือโรงแรมมาก่อน มีความละเอียดรอบคอบและรักความสะอาด เป็นคนช่างสังเกตและมักจะรู้ก่อนเสมอว่านักเรียนคนไหนกำลังมีปัญหาหรือป่วยไข้ มักจะแอบดูแลนักเรียนแบบเงียบๆ</p></div></div>
+                <div class="staff-card fade-in stagger-item"><div class="staff-icon">🍳</div><h3>คนขายข้าวแกง</h3><div class="staff-section"><h4>หน้าที่</h4><ul><li>ปรุงอาหารขายในโรงอาหารวันละ 3 มื้อ</li><li>ดูแลความสะอาดของครัวและอุปกรณ์</li><li>จัดหาวัตถุดิบที่ปลอดภัยสำหรับทั้งมนุษย์และปีศาจ</li><li>ไม่มีส่วนผสมที่กระตุ้นสัญชาตญาณดิบ</li></ul></div><div class="staff-section"><h4>เวลาทำงาน</h4><p>05:00 - 14:00 น.</p></div><div class="staff-section"><h4>ประวัติคร่าวๆ</h4><p>เป็นพ่อครัว/แม่ครัวที่มีฝีมือและใจรักในการทำอาหาร เคยเปิดร้านอาหารมาก่อนแต่ย้ายมาอยู่ในพื้นที่ลับเพราะเหตุผลบางประการ ใจดี คุยสนุก และมักจะแถมอาหารให้นักเรียนที่ดูผอมหรือเหนื่อยล้าเสมอ เป็นที่พึ่งทางใจและทางท้องของทุกคนในโรงเรียน</p></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== RULES ===== -->
+    <section id="rules">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2 class="section-title">กฎระเบียบสถาบัน</h2>
+                <div class="section-divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-icon">⚖️</div>
+                    <div class="divider-line"></div>
+                </div>
+            </div>
+            <div class="rules-list">
+                <div class="rule-item fade-in stagger-item"><div class="rule-number">01</div><div class="rule-text">ห้ามใช้พลังหรืออาวุธทำร้ายผู้อื่นนอกเขตฝึกซ้อมโดยเด็ดขาด</div></div>
+                <div class="rule-item fade-in stagger-item"><div class="rule-number">02</div><div class="rule-text">เคารพในสิทธิ์และพื้นที่ส่วนตัวของผู้อื่น (ทั้งมนุษย์และปีศาจ)</div></div>
+                <div class="rule-item fade-in stagger-item"><div class="rule-number">03</div><div class="rule-text">ห้ามออกจากพื้นที่โรงเรียนโดยไม่ได้รับอนุญาตจากครูผู้สอน</div></div>
+                <div class="rule-item fade-in stagger-item"><div class="rule-number">04</div><div class="rule-text">ต้องเข้าร่วมกิจกรรมบำบัดจิตและวิชาการบังคับอย่างครบถ้วน</div></div>
+                <div class="rule-item fade-in stagger-item"><div class="rule-number">05</div><div class="rule-text">ห้ามลักลอบนำวัตถุดิบต้องห้ามเข้ามาในเขตปรุงยาและหอพัก</div></div>
+                <div class="rule-item fade-in stagger-item"><div class="rule-number">06</div><div class="rule-text">เข้าเรียนตรงเวลา แต่งกายสุภาพตามระเบียบ</div></div>
+                <div class="rule-item fade-in stagger-item"><div class="rule-number">07</div><div class="rule-text">รักษาความสะอาดและทรัพย์สินของโรงเรียน</div></div>
+                <div class="rule-item fade-in stagger-item"><div class="rule-number">08</div><div class="rule-text">ให้เกียรติครู บุคลากร และเพื่อนนักเรียน</div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== SCHEDULE ===== -->
+    <section id="schedule" style="background: rgba(15,15,37,0.5);">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2 class="section-title">ตารางเวลาเรียน</h2>
+                <div class="section-divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-icon">⏳</div>
+                    <div class="divider-line"></div>
+                </div>
+            </div>
+            <div class="glass-card fade-in">
+                <table class="schedule-table">
+                    <thead><tr><th>เวลา</th><th>กิจกรรม</th></tr></thead>
+                    <tbody>
+                        <tr><td class="time-cell">06:00</td><td>ตื่นนอน</td></tr>
+                        <tr><td class="time-cell">07:00 - 08:00</td><td>อาหารเช้า (โรงอาหาร)</td></tr>
+                        <tr><td class="time-cell">08:00 - 08:30</td><td>เข้าแถว / กิจกรรมหน้าเสาธง</td></tr>
+                        <tr><td class="time-cell">08:30 - 10:00</td><td>คาบเรียนที่ 1</td></tr>
+                        <tr><td class="time-cell">10:00 - 10:15</td><td>พักเบรก</td></tr>
+                        <tr><td class="time-cell">10:15 - 11:45</td><td>คาบเรียนที่ 2</td></tr>
+                        <tr><td class="time-cell">11:45 - 12:45</td><td>พักกลางวัน</td></tr>
+                        <tr><td class="time-cell">12:45 - 14:15</td><td>คาบเรียนที่ 3</td></tr>
+                        <tr><td class="time-cell">14:15 - 14:30</td><td>พักเบรก</td></tr>
+                        <tr><td class="time-cell">14:30 - 16:00</td><td>คาบเรียนที่ 4</td></tr>
+                        <tr><td class="time-cell">16:00 - 17:30</td><td>กิจกรรมชมรม / ฝึกเพิ่มเติม</td></tr>
+                        <tr><td class="time-cell">17:30 - 18:30</td><td>อาหารเย็น / เวลาอิสระ</td></tr>
+                        <tr><td class="time-cell">18:30 - 21:00</td><td>ทำการบ้าน / อ่านหนังสือ / พักผ่อน</td></tr>
+                        <tr><td class="time-cell">21:00</td><td>เข้านอน (ปิดไฟ)</td></tr>
+                        <tr><td class="time-cell">22:00</td><td>ตรวจหอพัก</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="glass-card fade-in" style="margin-top: 30px;">
+                <h3 style="color: var(--gold-bright); font-family: 'Cinzel', serif; margin-bottom: 20px; font-size: 1.3em;">📌 กฎหอพัก</h3>
+                <div class="info-grid">
+                    <div class="info-item"><h3>เวลาเงียบ</h3><p>ห้ามส่งเสียงดังหลัง 21:00 น.</p></div>
+                    <div class="info-item"><h3>ห้ามใช้พลัง</h3><p>ห้ามใช้เวทมนตร์หรือพลังพิเศษในหอพัก</p></div>
+                    <div class="info-item"><h3>ความสะอาด</h3><p>รักษาความสะอาดห้องและพื้นที่ส่วนกลาง</p></div>
+                    <div class="info-item"><h3>ความเป็นส่วนตัว</h3><p>เคารพความเป็นส่วนตัวของเพื่อนร่วมห้อง</p></div>
+                    <div class="info-item"><h3>เหตุฉุกเฉิน</h3><p>แจ้งครูทันทีหากมีเหตุฉุกเฉิน</p></div>
+                    <div class="info-item"><h3>การเข้า-ออก</h3><p>ต้องขออนุญาตก่อนออกจากหอพักหลังเวลา 21:00 น.</p></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+        <div class="footer-emblem">🏛️</div>
+        <div class="footer-quote">"ความแตกต่างคือพลัง ความเข้าใจคือกุญแจ"</div>
+        <div class="footer-text">
+            สถาบันศึกษาพิเศษภูผา | Phupha Special Education Institute<br>
+            <small style="color: var(--gold);">สำหรับโรลเพลย์ • ทุกตำแหน่งเปิดให้ผู้เล่นรับบทบาท</small>
+        </div>
+    </footer>
+
+    <!-- ===== AUDIO (Background Music) ===== -->
+    <audio id="bgMusic" loop preload="auto">
+        <source src="https://drive.google.com/uc?export=download&id=12gPYRMgNlutrXA-8-h7mh0kcvvE42GnG" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // ===== INIT =====
+        window.addEventListener('load', () => {
+            createStars();
+            createRain();
+            createGoldParticles();
+            createEmbers();
+            createCharts();
+            playCineIntro();
+            initHeroParallax();
+            initAudio();
+        });
+
+        // ===== STARS =====
+        function createStars() {
+            const container = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                container.appendChild(star);
+            }
+        }
+
+        // ===== RAIN =====
+        function createRain() {
+            const container = document.getElementById('rainContainer');
+            for (let i = 0; i < 80; i++) {
+                const drop = document.createElement('div');
+                drop.className = 'raindrop';
+                drop.style.left = Math.random() * 100 + '%';
+                drop.style.height = (Math.random() * 80 + 40) + 'px';
+                drop.style.animationDuration = (Math.random() * 1 + 0.8) + 's';
+                drop.style.animationDelay = Math.random() * 2 + 's';
+                drop.style.opacity = Math.random() * 0.5 + 0.2;
+                container.appendChild(drop);
+            }
+        }
+
+        // ===== GOLD PARTICLES =====
+        function createGoldParticles() {
+            const container = document.getElementById('goldParticles');
+            for (let i = 0; i < 40; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'gold-particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDuration = (Math.random() * 15 + 10) + 's';
+                particle.style.animationDelay = Math.random() * 10 + 's';
+                const size = Math.random() * 4 + 2;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                container.appendChild(particle);
+            }
+        }
+
+        // ===== EMBERS =====
+        function createEmbers() {
+            const container = document.getElementById('embers');
+            for (let i = 0; i < 30; i++) {
+                const ember = document.createElement('div');
+                ember.className = 'ember';
+                ember.style.left = Math.random() * 100 + '%';
+                ember.style.setProperty('--drift', (Math.random() * 120 - 60) + 'px');
+                ember.style.animationDuration = (Math.random() * 6 + 6) + 's';
+                ember.style.animationDelay = Math.random() * 10 + 's';
+                container.appendChild(ember);
+            }
+        }
+
+        // ===== CHARTS =====
+        function createCharts() {
+            const popCtx = document.getElementById('populationChart').getContext('2d');
+            new Chart(popCtx, {
+                type: 'line',
+                data: {
+                    labels: ['นักเรียน', 'คณะครู', 'บุคลากรสนับสนุน', 'รวมทั้งหมด'],
+                    datasets: [{
+                        label: 'จำนวนประชากร',
+                        data: [10, 5, 3, 18],
+                        borderColor: '#d4af37',
+                        backgroundColor: 'rgba(212,175,55,0.2)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#ffd700',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 8,
+                        pointHoverRadius: 12,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#f0f0f8', font: { size: 14, family: 'Sarabun' } } },
+                        tooltip: {
+                            backgroundColor: 'rgba(26,26,62,0.95)',
+                            titleColor: '#ffd700',
+                            bodyColor: '#f0f0f8',
+                            borderColor: '#d4af37',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, max: 20, ticks: { color: '#b8b8d0' }, grid: { color: 'rgba(212,175,55,0.1)' } },
+                        x: { ticks: { color: '#b8b8d0', font: { size: 12 } }, grid: { color: 'rgba(212,175,55,0.1)' } }
+                    }
+                }
+            });
+
+            const roleCtx = document.getElementById('roleChart').getContext('2d');
+            new Chart(roleCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['นักเรียน (10 คน)', 'คณะครู (5 คน)', 'บุคลากรสนับสนุน (3 คน)'],
+                    datasets: [{
+                        data: [10, 5, 3],
+                        backgroundColor: ['rgba(212,175,55,0.8)', 'rgba(107,76,154,0.8)', 'rgba(155,123,201,0.8)'],
+                        borderColor: ['#ffd700', '#9b7bc9', '#6b4c9a'],
+                        borderWidth: 2,
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#f0f0f8', font: { size: 13, family: 'Sarabun' }, padding: 20 } },
+                        tooltip: { backgroundColor: 'rgba(26,26,62,0.95)', titleColor: '#ffd700', bodyColor: '#f0f0f8', borderColor: '#d4af37', borderWidth: 1 }
+                    }
+                }
+            });
+        }
+
+        // ===== CINEMATIC INTRO =====
+        function playCineIntro() {
+            const intro = document.getElementById('cineIntro');
+            const skip = document.getElementById('cineSkip');
+            const letterboxTop = document.getElementById('letterboxTop');
+            const letterboxBottom = document.getElementById('letterboxBottom');
+            const emblem = document.getElementById('cineEmblem');
+            const lines = [
+                document.getElementById('cineLine1'),
+                document.getElementById('cineLine2'),
+                document.getElementById('cineLine3'),
+                document.getElementById('cineLine4')
+            ];
+            let finished = false;
+
+            function endIntro() {
+                if (finished) return;
+                finished = true;
+                intro.classList.add('fade-out');
+                skip.style.display = 'none';
+                document.body.classList.remove('intro-lock');
+                setTimeout(() => {
+                    letterboxTop.classList.add('hide');
+                    letterboxBottom.classList.add('hide');
+                }, 400);
+                setTimeout(() => intro.remove(), 1800);
+                // Start music after intro
+                const audio = document.getElementById('bgMusic');
+                if (audio) audio.play().catch(() => {});
+            }
+
+            emblem.classList.add('show');
+            lines.forEach((line, i) => {
+                setTimeout(() => line.classList.add('show'), 900 + i * 1650);
+            });
+
+            skip.addEventListener('click', endIntro);
+            setTimeout(endIntro, 900 + lines.length * 1650 + 600);
+        }
+
+        // ===== HERO PARALLAX =====
+        function initHeroParallax() {
+            const emblem = document.querySelector('.hero-emblem');
+            const rays = document.querySelector('.light-rays');
+            if (!emblem) return;
+            window.addEventListener('mousemove', (e) => {
+                const x = (e.clientX / window.innerWidth - 0.5) * 2;
+                const y = (e.clientY / window.innerHeight - 0.5) * 2;
+                emblem.style.transform = `translate(${x * 12}px, ${y * 12}px)`;
+                if (rays) rays.style.transform = `translateX(-50%) translate(${x * 6}px, ${y * 6}px)`;
+            });
+        }
+
+        // ===== AUDIO =====
+        function initAudio() {
+            const audio = document.getElementById('bgMusic');
+            // The audio will be played after intro ends (in playCineIntro)
+            // But also ensure it can be played on user gesture if needed
+            document.addEventListener('click', () => {
+                if (audio.paused) audio.play().catch(() => {});
+            }, { once: false });
+        }
+
+        // ===== SCROLL PROGRESS =====
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('scrollProgress').style.width = scrolled + '%';
+        });
+
+        // ===== BACK TO TOP =====
+        const backToTopBtn = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 500) backToTopBtn.classList.add('visible');
+            else backToTopBtn.classList.remove('visible');
+            const navbar = document.getElementById('navbar');
+            if (window.pageYOffset > 100) navbar.classList.add('scrolled');
+            else navbar.classList.remove('scrolled');
+        });
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // ===== INTERSECTION OBSERVER =====
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('visible');
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+        document.querySelectorAll('.fade-in, .stagger-item').forEach(el => observer.observe(el));
+
+        // ===== SMOOTH SCROLL =====
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    window.scrollTo({ top: target.offsetTop - 100, behavior: 'smooth' });
+                }
+            });
+        });
+
+        // ===== ACTIVE NAV =====
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-link');
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 200;
+                if (scrollY >= sectionTop && scrollY < sectionTop + section.clientHeight) {
+                    current = section.getAttribute('id');
+                }
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) link.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
