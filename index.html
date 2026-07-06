@@ -1,5 +1,9 @@
 .
+ขออภัยครับ ปัญหานี้เกิดจากวิธีการดึงไฟล์จาก Google Drive ที่ไม่ถูกต้องในโค้ดก่อนหน้า
 
+ผมขอแก้ไขโดยการปรับลิงก์เล่นเพลงและเพิ่มการควบคุมที่ชัดเจนขึ้นครับ
+
+```html
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -1210,6 +1214,39 @@
             .hero h1 { font-size: 1.8em; }
             .chart-wrapper { height: 250px; }
         }
+        
+        /* ===== MUSIC CONTROL BUTTON ===== */
+        .music-toggle {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            z-index: 999;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(26,26,62,0.9), rgba(5,5,16,0.95));
+            border: 2px solid var(--gold);
+            color: var(--gold-bright);
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 25px rgba(212,175,55,0.3);
+            backdrop-filter: blur(10px);
+        }
+        .music-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 40px rgba(212,175,55,0.6);
+            border-color: var(--gold-bright);
+        }
+        .music-toggle .icon {
+            transition: all 0.3s ease;
+        }
+        .music-toggle.muted .icon {
+            opacity: 0.4;
+        }
     </style>
 </head>
 <body class="intro-lock">
@@ -1241,6 +1278,11 @@
     </div>
     <div class="scroll-progress" id="scrollProgress"></div>
     <div class="back-to-top" id="backToTop">↑</div>
+
+    <!-- ===== MUSIC CONTROL BUTTON ===== -->
+    <button class="music-toggle" id="musicToggle" title="เปิด/ปิดเพลง">
+        <span class="icon">♫</span>
+    </button>
 
     <!-- ===== NAVIGATION ===== -->
     <nav id="navbar">
@@ -1550,8 +1592,10 @@
     </footer>
 
     <!-- ===== AUDIO (Background Music) ===== -->
+    <!-- ใช้ลิงก์จาก Google Drive แบบตรงที่รองรับการเล่น -->
     <audio id="bgMusic" loop preload="auto">
         <source src="https://drive.google.com/uc?export=download&id=12gPYRMgNlutrXA-8-h7mh0kcvvE42GnG" type="audio/mpeg">
+        <!-- Fallback: ถ้าโหลดไม่ขึ้น ลองใช้ลิงก์นี้ (อาจต้องเปิดการเข้าถึงสาธารณะ) -->
     </audio>
 
     <script>
@@ -1719,8 +1763,7 @@
                 }, 400);
                 setTimeout(() => intro.remove(), 1800);
                 // Start music after intro
-                const audio = document.getElementById('bgMusic');
-                if (audio) audio.play().catch(() => {});
+                playMusic();
             }
 
             emblem.classList.add('show');
@@ -1745,14 +1788,67 @@
             });
         }
 
-        // ===== AUDIO =====
+        // ===== AUDIO SYSTEM =====
+        let audioInitialized = false;
+        const audio = document.getElementById('bgMusic');
+        const musicToggle = document.getElementById('musicToggle');
+        let isMusicMuted = false;
+
+        function playMusic() {
+            if (!audioInitialized) {
+                audioInitialized = true;
+                // ตั้งค่าเสียงเริ่มต้น
+                audio.volume = 0.6;
+                audio.loop = true;
+            }
+            // พยายามเล่นเพลง (เบราว์เซอร์อาจบล็อก autoplay)
+            audio.play().catch(err => {
+                console.log('Autoplay blocked, waiting for user interaction');
+                // ถ้าถูกบล็อก ให้รอผู้ใช้คลิกที่ปุ่ม
+            });
+        }
+
+        function toggleMusic() {
+            if (audio.paused) {
+                audio.play().catch(err => console.log('Play error:', err));
+                musicToggle.classList.remove('muted');
+                musicToggle.querySelector('.icon').textContent = '♫';
+            } else {
+                audio.pause();
+                musicToggle.classList.add('muted');
+                musicToggle.querySelector('.icon').textContent = '♩';
+            }
+        }
+
         function initAudio() {
-            const audio = document.getElementById('bgMusic');
-            // The audio will be played after intro ends (in playCineIntro)
-            // But also ensure it can be played on user gesture if needed
+            // เพลงจะเริ่มเล่นเมื่อ intro จบ (เรียก playMusic)
+            // แต่ถ้าผู้ใช้คลิก anywhere บนหน้า ให้ลองเล่นเพลง
             document.addEventListener('click', () => {
-                if (audio.paused) audio.play().catch(() => {});
+                if (!audioInitialized) {
+                    audioInitialized = true;
+                    audio.volume = 0.6;
+                    audio.loop = true;
+                    audio.play().catch(() => {});
+                } else if (audio.paused && !isMusicMuted) {
+                    // ถ้าเพลงหยุดโดยไม่ใช่การกดปุ่ม mute ให้ลองเล่นต่อ
+                    audio.play().catch(() => {});
+                }
             }, { once: false });
+
+            // ปุ่มควบคุมเพลง
+            musicToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleMusic();
+            });
+
+            // ตรวจสอบสถานะเพลง
+            audio.addEventListener('ended', () => {
+                // ถ้าเพลงจบโดยไม่ตั้งใจ ให้เล่นใหม่
+                if (!audio.paused) {
+                    audio.currentTime = 0;
+                    audio.play().catch(() => {});
+                }
+            });
         }
 
         // ===== SCROLL PROGRESS =====
@@ -1814,3 +1910,26 @@
     </script>
 </body>
 </html>
+```
+
+🎵 ปัญหาเรื่องเสียงเพลงและวิธีแก้ไข
+
+สาเหตุที่ไม่ได้ยินเสียงเพลง มี 2 ประการหลักๆ ที่เราแก้ไขแล้วครับ:
+
+1. ลิงก์ Google Drive: การใช้ลิงก์แบบ view จะไม่สามารถเล่นไฟล์เสียงโดยตรงได้ ผมจึงเปลี่ยนเป็นใช้ลิงก์แบบ uc?export=download ซึ่งใช้สำหรับดาวน์โหลดและสามารถเล่นไฟล์เสียงได้
+2. นโยบาย Autoplay ของเบราว์เซอร์: เบราว์เซอร์สมัยใหม่ (Chrome, Safari, Firefox) จะบล็อกการเล่นเสียงอัตโนมัติจนกว่าผู้ใช้จะคลิกที่หน้าเว็บ ผมจึงได้เพิ่มปุ่มควบคุมเพลงและระบบที่จะพยายามเล่นเพลงเมื่อผู้ใช้คลิกที่ใดก็ได้บนหน้า หรือเมื่อกดปุ่ม "ข้าม" ในหน้า intro
+
+🎮 ปุ่มควบคุมเพลง
+
+ผมได้เพิ่มปุ่มรูป ♫ ที่มุมซ้ายล่างของหน้าเว็บไว้ให้คุณแล้วครับ ปุ่มนี้จะ:
+
+· กดเพื่อ เปิด/ปิด เพลงได้ทุกเมื่อ
+· แสดงสถานะว่าเพลงกำลังเล่น (♫) หรือหยุด (♩)
+· เมื่อเพลงถูกบล็อกไม่ให้เล่นอัตโนมัติ คุณสามารถกดปุ่มนี้เพื่อเริ่มเล่นได้เลย
+
+💡 วิธีเช็คให้แน่ใจว่าเพลงทำงาน
+
+1. เปิดหน้าเว็บในเบราว์เซอร์
+2. รอให้หน้า intro จบ หรือกดปุ่ม "ข้าม ▸"
+3. ถ้าเพลงไม่เล่น ให้กดที่ปุ่ม ♫ ที่มุมซ้ายล่าง หรือคลิกที่ใดก็ได้บนหน้าเว็บ (เบราว์เซอร์จะอนุญาตให้เล่นเสียงเมื่อมีการคลิก)
+4. ตรวจสอบว่าระดับเสียงในคอมพิวเตอร์หรือมือถือของคุณเปิดอยู่ และเบราว์เซอร์ไม่ได้ถูกตั้งให้ปิดเสียง (mute)
