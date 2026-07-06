@@ -1905,3 +1905,27 @@
     </script>
 </body>
 </html>
+<audio id="bgMusic" src="https://drive.google.com/uc?export=download&id=12gPYRMgNlutrXA-8-h7mh0kcvvE42GnG" loop></audio>
+
+<button id="musicToggle" style="position:fixed; bottom:20px; right:20px; z-index:9999; 
+  padding:10px 16px; border-radius:50px; border:none; background:#222; color:#fff; 
+  cursor:pointer; font-size:14px;">
+  🔇 เปิดเพลง
+</button>
+
+<script>
+  const audio = document.getElementById('bgMusic');
+  const btn = document.getElementById('musicToggle');
+  let playing = false;
+
+  btn.addEventListener('click', () => {
+    if (!playing) {
+      audio.play();
+      btn.textContent = '🔊 ปิดเพลง';
+    } else {
+      audio.pause();
+      btn.textContent = '🔇 เปิดเพลง';
+    }
+    playing = !playing;
+  });
+</script>
